@@ -115,8 +115,8 @@ Training takes about a minute per epoch on a T4.
 
 ## 🎮 Try it
 
-- 🧑‍💻 **Demo:** `[link to Hugging Face Space]`
-- 🕹️ **Can you beat my AI?** A small game on my website: `[link]`
+- 🧑‍💻 **Demo:** `[Try it on Hugging Face Spaces]` (https://huggingface.co/spaces/AithusaM/cansat-landcover)
+- 🕹️ **Can you beat my AI?** A small game on my website: `[coming soon..]`
 
 ## 🔭 What's next (v2)
 

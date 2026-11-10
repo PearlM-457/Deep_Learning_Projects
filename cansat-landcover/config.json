@@ -1,0 +1,19 @@
+{
+  "classes": [
+    "field",
+    "vegetation",
+    "building",
+    "road",
+    "bare_land",
+    "sky"
+  ],
+  "tile_px": 100,
+  "grid_rows": 6,
+  "grid_cols": 8,
+  "input_size": 224,
+  "holdout_photos": [
+    "cansat4.jpg",
+    "cansat8.jpg"
+  ],
+  "backbone": "mobilenet_v3_large"
+}

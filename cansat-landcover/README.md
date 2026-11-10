@@ -92,7 +92,6 @@ cansat-landcover/
 │   └── model_4class_eurosat.pth    # Stage 2 model (before my own tiles)
 ├── data/
 │   ├── photos/                     # original CanSat photos
-│   ├── tiles/                      # my labelled 100px tiles, by photo and class
 │   └── tile_labels.csv             # photo, row, col, label
 ├── results/
 │   ├── maps_after/                 # hand labels | before | after, per photo

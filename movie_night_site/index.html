@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Movie Night Picker</title>
+<meta name="description" content="Pick movies you love, get recommendations for tonight. Works for one person or two.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="curtain"></div>
+<header class="marquee">
+  <div class="bulbs top"></div>
+  <p class="now">★ NOW SHOWING ★</p>
+  <h1>Movie Night Picker</h1>
+  <p class="tag">Tell me what you love. I'll find tonight's movie.</p>
+  <div class="bulbs bottom"></div>
+</header>
+
+<main class="wrap">
+  <section class="panel" id="picks">
+    <div class="row between">
+      <h2>🎟️ Your picks</h2>
+      <label class="switch"><input type="checkbox" id="two"> Movie night for two 👫</label>
+    </div>
+    <div class="pickers">
+      <div class="pcol">
+        <label class="lbl" id="lblA">Movies you love <span class="hint">(pick 1–8)</span></label>
+        <div class="picker" id="pickA" data-key="likedA">
+          <div class="chips"></div>
+          <input type="text" placeholder="Type a title, e.g. Inception…" autocomplete="off" aria-label="Search movies you love">
+          <ul class="sugg" hidden></ul>
+        </div>
+      </div>
+      <div class="pcol" id="colB" hidden>
+        <label class="lbl">Person B loves <span class="hint">(pick 1–8)</span></label>
+        <div class="picker" id="pickB" data-key="likedB">
+          <div class="chips"></div>
+          <input type="text" placeholder="Type a title…" autocomplete="off" aria-label="Search movies person B loves">
+          <ul class="sugg" hidden></ul>
+        </div>
+      </div>
+    </div>
+
+    <details class="tune">
+      <summary>🎛️ Fine-tune</summary>
+      <div class="tune-grid">
+        <div class="full">
+          <span class="lbl">Only these genres <span class="hint">(any of them; none selected = all)</span></span>
+          <div id="genreChips" class="gchips"></div>
+        </div>
+        <label>Released since <output id="oYear">1980</output>
+          <input type="range" id="minYear" min="1920" max="2026" value="1980"></label>
+        <label>Max runtime <output id="oRt">any</output>
+          <input type="range" id="maxRt" min="60" max="300" step="5" value="300"></label>
+        <label>How many picks <output id="oN">12</output>
+          <input type="range" id="nPicks" min="6" max="24" step="2" value="12"></label>
+        <label>Crowd-pleaser boost <output id="oPop">0.10</output>
+          <input type="range" id="popW" min="0" max="0.3" step="0.01" value="0.1"></label>
+        <label>Stay close to my genres <output id="oGen">0.20</output>
+          <input type="range" id="genreW" min="0" max="0.5" step="0.05" value="0.2"></label>
+        <label class="check"><input type="checkbox" id="hideFr" checked> Hide sequels / same series as my picks</label>
+      </div>
+    </details>
+
+    <div class="row">
+      <button class="btn" id="go">🎬 Roll film</button>
+      <button class="btn ghost" id="share" title="Copy a link with your picks">🔗 Copy link</button>
+      <span id="status" class="status"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="watchedPanel">
+    <h2>👀 Already watched <span class="hint">(never recommended; saved in this browser only)</span></h2>
+    <div class="picker" id="pickW" data-key="watched">
+      <div class="chips"></div>
+      <input type="text" placeholder="Add movies you've seen…" autocomplete="off" aria-label="Search movies you have watched">
+      <ul class="sugg" hidden></ul>
+    </div>
+  </section>
+
+  <div class="strip"></div>
+  <section id="results" aria-live="polite"></section>
+  <div class="strip"></div>
+</main>
+
+<footer>
+  <p>Movie data and posters from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p>Recommendations run entirely in your browser (text embeddings of plots, genres &amp; keywords). Code on <a href="https://github.com/YOUR_USERNAME/movie-night-picker">GitHub</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

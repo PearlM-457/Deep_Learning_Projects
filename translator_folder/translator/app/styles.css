@@ -296,3 +296,8 @@ figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
   textarea, .output { font-size: 1.1rem; padding: 14px 16px; }
   .nllb-info { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------- privacy note ---------- */
+.privacy { display: flex; gap: 10px; align-items: flex-start; margin: 12px 4px 0; font-size: .82rem; line-height: 1.5; color: var(--muted); }
+.privacy i { width: 18px; height: 18px; margin-top: 1px; color: var(--brand); }
+.privacy b { color: var(--text); }

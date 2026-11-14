@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Translator — EN · UZ · DE</title>
+  <meta name="description" content="Translator: an English ⇄ Uzbek ⇄ German translator that runs in your browser, with German learning tools and a self-trained Transformer model.">
+  <meta name="theme-color" content="#0b7fa3">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta property="og:title" content="Translator — EN · UZ · DE">
+  <meta property="og:description" content="Translate English, Uzbek and German in your browser. Learn German with flashcards, der/die/das colors and pronunciation.">
+  <meta property="og:image" content="icons/og.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    try { const t = localStorage.getItem("translator.theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#translate" aria-label="Translator home">
+      <img src="icons/icon.svg" alt="" width="36" height="36">
+      <span class="brand-text"><strong>Translator</strong><small>EN · UZ · DE</small></span>
+    </a>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" data-tab="translate" aria-selected="true"><i data-icon="languages"></i><span>Translate</span></button>
+      <button role="tab" data-tab="words" aria-selected="false"><i data-icon="cards"></i><span>My words</span><b class="badge" id="wordCount" hidden>0</b></button>
+      <button role="tab" data-tab="history" aria-selected="false"><i data-icon="history"></i><span>History</span></button>
+      <button role="tab" data-tab="about" aria-selected="false"><i data-icon="info"></i><span>About</span></button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="installBtn" hidden title="Install app"><i data-icon="download"></i></button>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme"><i data-icon="moon"></i></button>
+      <a class="icon-btn" id="ghLink" href="https://github.com/PearlM-457/Deep_Learning_Projects/tree/main/translator" target="_blank" rel="noopener" title="Source on GitHub"><i data-icon="github"></i></a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================== TRANSLATE ============================== -->
+    <section id="view-translate" class="view" data-view="translate">
+      <div class="engine-row" role="radiogroup" aria-label="Translation engine">
+        <button class="engine" data-engine="online" role="radio">
+          <i data-icon="zap"></i>
+          <span><strong>Online</strong><small>Instant · needs internet</small></span>
+        </button>
+        <button class="engine" data-engine="nllb" role="radio">
+          <i data-icon="shield"></i>
+          <span><strong>On-device AI</strong><small id="nllbStatus">NLLB-200 · private · offline</small></span>
+        </button>
+        <button class="engine" data-engine="mine" role="radio">
+          <i data-icon="flask"></i>
+          <span><strong>My model</strong><small id="mineStatus">Seq2Seq I trained · EN→UZ</small></span>
+        </button>
+      </div>
+
+      <div class="nllb-panel" id="nllbPanel" hidden>
+        <div class="nllb-info">
+          <i data-icon="cpu"></i>
+          <div>
+            <strong>Run Meta's NLLB-200 entirely in your browser</strong>
+            <p>One-time download (~900 MB, cached afterwards). After that it translates offline and nothing leaves your device.</p>
+          </div>
+          <button class="btn primary" id="nllbLoadBtn"><i data-icon="download"></i>Download model</button>
+        </div>
+        <div class="progress" id="nllbProgress" hidden><div class="bar"></div><span class="label">Starting…</span></div>
+      </div>
+
+      <div class="langbar">
+        <label class="lang-select"><span class="sr">From</span>
+          <select id="srcLang">
+            <option value="en">English</option>
+            <option value="uz">O'zbekcha</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </label>
+        <button class="icon-btn swap" id="swapBtn" title="Swap languages (Ctrl+Shift+S)"><i data-icon="swap"></i></button>
+        <label class="lang-select"><span class="sr">To</span>
+          <select id="tgtLang">
+            <option value="en">English</option>
+            <option value="uz" selected>O'zbekcha</option>
+            <option value="de">Deutsch</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="panes">
+        <div class="pane src-pane">
+          <textarea id="srcText" placeholder="Type or paste text…  (Ctrl+Enter to translate)" maxlength="1000" spellcheck="true"></textarea>
+          <div class="pane-foot">
+            <button class="icon-btn" id="micBtn" title="Speak (voice input)"><i data-icon="mic"></i></button>
+            <button class="icon-btn" id="speakSrcBtn" title="Listen"><i data-icon="volume"></i></button>
+            <button class="icon-btn" id="clearBtn" title="Clear"><i data-icon="x"></i></button>
+            <span class="spacer"></span>
+            <span class="count" id="charCount">0 / 1000</span>
+            <button class="btn primary" id="translateBtn"><i data-icon="sparkles"></i>Translate</button>
+          </div>
+        </div>
+        <div class="pane tgt-pane">
+          <div id="tgtText" class="output" aria-live="polite"><span class="placeholder">Translation appears here. Tap any word to look it up and save it.</span></div>
+          <div class="mine-meta" id="mineMeta" hidden></div>
+          <div class="pane-foot">
+            <button class="icon-btn" id="speakTgtBtn" title="Listen"><i data-icon="volume"></i></button>
+            <button class="icon-btn" id="copyBtn" title="Copy"><i data-icon="copy"></i></button>
+            <button class="icon-btn" id="saveBtn" title="Save sentence to My words"><i data-icon="star"></i></button>
+            <span class="spacer"></span>
+            <div class="legend" id="deLegend" hidden title="German noun genders">
+              <span class="g-m">der</span><span class="g-f">die</span><span class="g-n">das</span>
+            </div>
+            <span class="engine-tag" id="engineTag"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="below">
+        <div class="card examples">
+          <h3><i data-icon="lightbulb"></i>Try an example</h3>
+          <div class="chips" id="exampleChips"></div>
+        </div>
+        <div class="card potd" id="potd">
+          <h3><i data-icon="calendar"></i>German phrase of the day</h3>
+          <div class="potd-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== WORDS ============================== -->
+    <section id="view-words" class="view" data-view="words" hidden>
+      <div class="section-head">
+        <div>
+          <h2>My words</h2>
+          <p class="muted">Saved words and sentences. Review them with spaced repetition (Leitner boxes).</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn primary" id="reviewBtn"><i data-icon="play"></i>Review <b id="dueCount">0</b> due</button>
+          <button class="btn" id="exportBtn"><i data-icon="download"></i>Anki / CSV</button>
+        </div>
+      </div>
+      <div class="review" id="review" hidden>
+        <div class="flashcard" id="flashcard" tabindex="0">
+          <div class="fc-face fc-front"><span class="fc-lang"></span><div class="fc-text"></div><small>Tap to reveal</small></div>
+          <div class="fc-face fc-back"><span class="fc-lang"></span><div class="fc-text"></div></div>
+        </div>
+        <div class="review-actions">
+          <button class="btn" id="fcSpeak"><i data-icon="volume"></i>Listen</button>
+          <button class="btn danger" id="fcAgain"><i data-icon="rotate"></i>Again</button>
+          <button class="btn success" id="fcGood"><i data-icon="check"></i>I knew it</button>
+          <button class="btn ghost" id="fcClose"><i data-icon="x"></i>Stop</button>
+        </div>
+        <div class="review-progress" id="reviewProgress"></div>
+      </div>
+      <div class="filter-row">
+        <input type="search" id="wordSearch" placeholder="Search saved words…">
+        <div class="seg" id="boxFilter">
+          <button data-box="all" class="on">All</button><button data-box="new">New</button><button data-box="learned">Learned</button>
+        </div>
+      </div>
+      <ul class="word-list" id="wordList"></ul>
+      <div class="empty" id="wordsEmpty">
+        <i data-icon="cards"></i>
+        <p>No words yet. Translate something and tap a word (or the <b>★</b> button) to save it.</p>
+      </div>
+    </section>
+
+    <!-- ============================== HISTORY ============================== -->
+    <section id="view-history" class="view" data-view="history" hidden>
+      <div class="section-head">
+        <div><h2>History</h2><p class="muted">Your last 100 translations, stored only on this device.</p></div>
+        <div class="head-actions"><button class="btn ghost" id="clearHistBtn"><i data-icon="trash"></i>Clear</button></div>
+      </div>
+      <ul class="hist-list" id="histList"></ul>
+      <div class="empty" id="histEmpty"><i data-icon="history"></i><p>Nothing here yet.</p></div>
+    </section>
+
+    <!-- ============================== ABOUT ============================== -->
+    <section id="view-about" class="view" data-view="about" hidden>
+      <div class="about-hero">
+        <h2>How Translator works</h2>
+        <p>Built by <strong>PearlyMe</strong>, starting from a university assignment: <em>“Seq2Seq (Transformer) bilan Ingliz → O'zbek mini translator”</em>. It grew into a translator I use every day to learn German.</p>
+      </div>
+      <div class="about-grid">
+        <div class="card">
+          <h3><i data-icon="zap"></i>Online</h3>
+          <p>Fast translations through the free MyMemory API. Best for quick lookups when you're connected.</p>
+        </div>
+        <div class="card">
+          <h3><i data-icon="shield"></i>On-device AI</h3>
+          <p>Meta's <b>NLLB-200</b> (600M parameters, 8-bit) running in your browser with <b>Transformers.js</b> + WebAssembly. Private, and it works offline after the first download.</p>
+        </div>
+        <div class="card">
+          <h3><i data-icon="flask"></i>My model</h3>
+          <p>My homework model: an encoder–decoder <b>Transformer trained from scratch</b> in PyTorch on ~1,900 EN→UZ sentence pairs, exported to ONNX (int8, 1.7 MB) and run with ONNX Runtime Web. Small vocabulary, so it's best on simple everyday sentences.</p>
+          <div class="score-row" id="scoreRow"></div>
+        </div>
+      </div>
+      <div class="card arch">
+        <h3><i data-icon="layers"></i>Encoder → Decoder</h3>
+        <svg viewBox="0 0 760 210" role="img" aria-label="Encoder decoder diagram">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+          <g font-family="Inter, sans-serif" font-size="13" fill="currentColor">
+            <rect x="10" y="30" width="150" height="44" rx="10" class="d-box"/><text x="85" y="57" text-anchor="middle">src: “I drink tea.”</text>
+            <rect x="200" y="30" width="120" height="44" rx="10" class="d-box"/><text x="260" y="57" text-anchor="middle">embed + pos</text>
+            <rect x="360" y="20" width="150" height="64" rx="12" class="d-enc"/><text x="435" y="50" text-anchor="middle" font-weight="700">ENCODER</text><text x="435" y="68" text-anchor="middle" font-size="11">self-attention × N</text>
+            <rect x="10" y="136" width="150" height="44" rx="10" class="d-box"/><text x="85" y="163" text-anchor="middle">tgt_in: &lt;sos&gt; men …</text>
+            <rect x="200" y="136" width="120" height="44" rx="10" class="d-box"/><text x="260" y="156" text-anchor="middle">embed + pos</text><text x="260" y="172" text-anchor="middle" font-size="11">+ causal mask</text>
+            <rect x="360" y="126" width="150" height="64" rx="12" class="d-dec"/><text x="435" y="156" text-anchor="middle" font-weight="700">DECODER</text><text x="435" y="174" text-anchor="middle" font-size="11">masked + cross-attn</text>
+            <rect x="550" y="136" width="80" height="44" rx="10" class="d-box"/><text x="590" y="163" text-anchor="middle">Linear</text>
+            <rect x="660" y="136" width="90" height="44" rx="10" class="d-out"/><text x="705" y="156" text-anchor="middle">next word</text><text x="705" y="172" text-anchor="middle" font-size="11">argmax</text>
+            <g stroke="currentColor" stroke-width="1.6" fill="none" marker-end="url(#ah)">
+              <path d="M160 52 H196"/><path d="M320 52 H356"/><path d="M160 158 H196"/><path d="M320 158 H356"/>
+              <path d="M435 84 V122"/><path d="M510 158 H546"/><path d="M630 158 H656"/>
+              <path d="M705 136 V110 H260 V184" stroke-dasharray="4 4" marker-end="none" opacity=".5"/>
+            </g>
+            <text x="480" y="106" font-size="11" opacity=".75">memory (meaning)</text>
+            <text x="560" y="104" font-size="11" opacity=".6">feed back, one word at a time</text>
+          </g>
+        </svg>
+      </div>
+      <div class="about-grid two">
+        <figure class="card"><img src="img/loss.png" alt="Training loss curve" loading="lazy"><figcaption>Training / test loss of the given Seq2Seq model (40 epochs).</figcaption></figure>
+        <figure class="card"><img src="img/nomask.png" alt="Loss with and without mask" loading="lazy"><figcaption>Without the causal mask the loss collapses because the decoder copies the answer, yet it can't translate.</figcaption></figure>
+      </div>
+      <div class="card">
+        <h3><i data-icon="book"></i>German learning tools</h3>
+        <ul class="ticks">
+          <li><span class="g-m">der</span> / <span class="g-f">die</span> / <span class="g-n">das</span> nouns are color-coded in German output (<em>die</em> is also the plural article).</li>
+          <li>Tap any word for an instant lookup in the other languages, pronunciation and one-tap saving.</li>
+          <li>Spaced-repetition flashcards, plus Anki/CSV export.</li>
+          <li>Voice input and text-to-speech (depends on the voices your device has).</li>
+          <li>Installable as an app (PWA). History and words stay on your device.</li>
+        </ul>
+      </div>
+      <p class="muted center small">Data: own rule-based EN→UZ corpus · Models: PyTorch → ONNX · NLLB-200 © Meta (CC-BY-NC 4.0) · Online engine: MyMemory</p>
+    </section>
+  </main>
+
+  <div class="popover" id="popover" hidden role="dialog" aria-label="Word lookup">
+    <div class="pop-head">
+      <strong class="pop-word"></strong>
+      <button class="icon-btn sm" data-act="speak" title="Listen"><i data-icon="volume"></i></button>
+      <button class="icon-btn sm" data-act="close" title="Close"><i data-icon="x"></i></button>
+    </div>
+    <div class="pop-body"></div>
+    <button class="btn primary sm full" data-act="save"><i data-icon="star"></i>Save to My words</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.min.js" defer></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Deep Learning Projects | Marvarid (PearlyMe)</title>
+<meta name="description" content="Hands-on deep learning projects: a Seq2Seq translator, a CanSat land-cover classifier and a movie recommender. Try them live and get the code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+
+.sky {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  background: linear-gradient(165deg, #ffe3f2 0%, #f2e2ff 38%, #dcebff 72%, #cde8ff 100%);
+}
+.sky .blob {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55;
+  animation: drift 28s ease-in-out infinite alternate;
+}
+.sky .b1 { width: 46vmax; height: 46vmax; left: -12vmax; top: -10vmax; background: #ffb8dc; }
+.sky .b2 { width: 42vmax; height: 42vmax; right: -14vmax; top: 18vh; background: #cfa8ff; animation-duration: 34s; }
+.sky .b3 { width: 50vmax; height: 50vmax; left: 10vw; bottom: -24vmax; background: #9fd3ff; animation-duration: 40s; }
+@keyframes drift { to { transform: translate(4vmax, 3vmax) scale(1.08); } }
+
+.sky .star {
+  position: absolute; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, .9);
+  animation: twinkle var(--d, 4s) ease-in-out var(--delay, 0s) infinite;
+}
+.sky .spark {
+  position: absolute; width: var(--s, 14px); height: var(--s, 14px);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M12 0c.8 6.2 5.8 11.2 12 12-6.2.8-11.2 5.8-12 12-.8-6.2-5.8-11.2-12-12C6.2 11.2 11.2 6.2 12 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, .95)) drop-shadow(0 0 8px var(--glow, rgba(255, 150, 210, .7)));
+  animation: twinkle var(--d, 5s) ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: .25; transform: scale(.75); } 50% { opacity: 1; transform: scale(1.15); } }
+
+.sky .shoot {
+  position: absolute; top: 12%; left: -160px; width: 130px; height: 2px; border-radius: 2px; opacity: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff);
+  box-shadow: 0 0 8px 1px rgba(255, 255, 255, .8);
+  animation: shoot 16s linear 3s infinite;
+}
+@keyframes shoot {
+  0% { transform: translate(0, 0) rotate(24deg); opacity: 0; }
+  2% { opacity: 1; }
+  9% { transform: translate(75vw, 34vh) rotate(24deg); opacity: 0; }
+  100% { transform: translate(75vw, 34vh) rotate(24deg); opacity: 0; }
+}
+
+/* sparkle dust that follows a mouse pointer */
+.dust {
+  position: fixed; z-index: 9; width: 9px; height: 9px; pointer-events: none; margin: -4px 0 0 -4px;
+  background: var(--h, #ff9fd0); border-radius: 50%; box-shadow: 0 0 8px 2px var(--h, #ff9fd0);
+  animation: dust .8s ease-out forwards;
+}
+@keyframes dust { to { opacity: 0; transform: translateY(16px) scale(.2); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sky *, .dust { animation: none !important; }
+  .sky .star, .sky .spark { opacity: .8; }
+}
+
+:root { color-scheme: light; --ink:#3b2f63; --muted:#6a5f8c; --pink:#ff8fc7; --purple:#8a63d2; --card:rgba(255,255,255,.68); --edge:rgba(255,255,255,.9); --px:"Press Start 2P", ui-monospace, "Courier New", monospace; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin:0; min-height:100vh; padding:28px 16px 64px; color:var(--ink); background:#f2e2ff; font-family:"Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size:1.04rem; line-height:1.65; display:flex; flex-direction:column; align-items:center; }
+.page { width:100%; max-width:980px; }
+a { color:var(--purple); text-underline-offset:3px; }
+:focus-visible { outline:3px solid var(--pink); outline-offset:3px; border-radius:6px; }
+.card { background:var(--card); border:1px solid var(--edge); border-radius:26px; padding:28px 30px; margin-bottom:26px; box-shadow:0 14px 40px rgba(138,99,210,.18); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+.hero { text-align:center; padding:38px 30px 28px; }
+.back { display:inline-block; margin-bottom:14px; font-weight:700; font-size:.9rem; text-decoration:none; background:rgba(255,255,255,.8); border:1px solid var(--edge); padding:6px 14px; border-radius:999px; }
+.kicker { margin:0 0 6px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:.8rem; color:var(--purple); }
+h1 { margin:0 0 14px; font-size:clamp(1.7rem,5.4vw,2.6rem); line-height:1.2; font-weight:800; background:linear-gradient(90deg,#f06fb4,#8a63d2 50%,#4fa8ee); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.hero p { margin:0 auto 12px; max-width:660px; color:var(--muted); }
+.pills { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:20px; }
+.pills a { text-decoration:none; font-weight:700; font-size:.92rem; color:var(--ink); background:rgba(255,255,255,.8); border:1px solid var(--edge); padding:8px 16px; border-radius:999px; }
+.pills a:hover { background:#fff; color:var(--purple); }
+.pills a.hot { background:linear-gradient(135deg,#ff9fd0,#a98bef); color:#fff; border-color:transparent; }
+h2.title { margin:30px 4px 6px; font-size:1.6rem; } h2.title::after { content:" ✦"; color:var(--pink); }
+.sub { margin:0 4px 16px; color:var(--muted); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:22px; margin-bottom:26px; }
+.theme { margin:0; padding:0; overflow:hidden; display:flex; flex-direction:column; transition:transform .25s, box-shadow .25s; }
+.theme:hover { transform:translateY(-4px); box-shadow:0 20px 48px rgba(138,99,210,.28); }
+.theme .pic { aspect-ratio:16/10; width:100%; object-fit:cover; object-position:top; display:block; background:#efe6ff; }
+.theme .tile { aspect-ratio:16/10; display:grid; place-items:center; font-size:3.6rem; background:linear-gradient(135deg,var(--a),var(--b)); }
+.theme .body { padding:18px 20px 22px; display:flex; flex-direction:column; flex:1; }
+.theme .kind { margin:0 0 4px; font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--purple); }
+.theme h3 { margin:0 0 8px; font-size:1.22rem; line-height:1.3; }
+.theme p { font-size:.95rem; }
+.tags { list-style:none; display:flex; flex-wrap:wrap; gap:6px; padding:0; margin:0 0 12px; }
+.tags li { font-size:.76rem; font-weight:700; padding:3px 11px; border-radius:999px; background:#efe6ff; color:#5a3ea6; }
+.acts { margin-top:auto; display:flex; flex-wrap:wrap; gap:10px; padding-top:6px; }
+.btn { display:inline-block; text-decoration:none; font-weight:800; font-size:.92rem; color:#3b2f63; background:#ffe27a; padding:9px 16px; border-radius:12px; box-shadow:0 4px 0 #d9b52e; transition:transform .15s, box-shadow .15s; }
+.btn:hover { color:#3b2f63; transform:translateY(2px); box-shadow:0 2px 0 #d9b52e; }
+.btn.alt { background:#fff; box-shadow:0 4px 0 #c9bfe6; }
+.note { font-size:.88rem; color:var(--muted); }
+code { background:#efe6ff; color:#5a3ea6; padding:2px 7px; border-radius:6px; font-size:.88em; }
+pre { background:#2b2540; color:#f3ecff; padding:14px 16px; border-radius:14px; overflow:auto; font-size:.86rem; line-height:1.5; }
+footer.hero { padding:22px 30px; } footer.hero p { margin-bottom:4px; }
+@media (max-width:560px) { body { padding:18px 12px 48px; } .card, .hero { padding:22px 18px; border-radius:22px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .theme { transition:none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero card">
+    <a class="back" href="https://pearlm-457.github.io/">&larr; Back to my universe</a>
+    <p class="kicker">✦ Deep learning ✦</p>
+    <h1>Deep Learning Projects</h1>
+    <p>Hands-on projects where I learn deep learning by building things that work: a translator I trained myself, a classifier that reads land from CanSat photos, and a recommender that picks tonight's movie.</p>
+    <p>If you are learning machine learning or just curious, try them below, then open the code to see how each one is made.</p>
+    <nav class="pills" aria-label="Sections">
+      <a href="#themes">Main themes</a>
+      <a href="#run">Run it yourself</a>
+      <a class="hot" href="https://github.com/PearlM-457/Deep_Learning_Projects" target="_blank" rel="noopener">GitHub repo</a>
+    </nav>
+  </header>
+
+  <h2 class="title" id="themes">Main themes</h2>
+  <p class="sub">Each theme has a live demo to try and the code behind it.</p>
+
+  <div class="grid">
+
+    <article class="card theme">
+      <img class="pic" src="translator-preview.png" alt="Screenshot of the Translator app" loading="lazy" onerror="this.outerHTML='<div class=&quot;tile&quot; style=&quot;--a:#bdeee6;--b:#e4f8f4&quot;>🌐</div>'">
+      <div class="body">
+        <p class="kind">Language · NLP</p>
+        <h3>Translator</h3>
+        <ul class="tags"><li>Transformer</li><li>PyTorch</li><li>ONNX</li><li>EN · UZ · DE</li></ul>
+        <p>A Seq2Seq Transformer I built and trained from scratch, extended into an in-browser English, Uzbek and German translator with word look-ups and German learning tools.</p>
+        <div class="acts">
+          <a class="btn" href="translator_folder/translator/app/">▶ Try it</a>
+          <a class="btn alt" href="https://github.com/PearlM-457/Deep_Learning_Projects/tree/main/translator_folder/translator" target="_blank" rel="noopener">Code &amp; notebook</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card theme">
+      <div class="tile" style="--a:#ffd0e4;--b:#ffeaf4" aria-hidden="true">🛰️</div>
+      <div class="body">
+        <p class="kind">Vision · Images</p>
+        <h3>CanSat Land-Cover</h3>
+        <ul class="tags"><li>Computer vision</li><li>Aerial imagery</li><li>Classification</li></ul>
+        <p>A classifier that reads the land type (fields, water, buildings and more) from the small camera flying under a CanSat.</p>
+        <div class="acts">
+          <a class="btn" href="https://aithusam-cansat-landcover.hf.space" target="_blank" rel="noopener">▶ Try it</a>
+          <a class="btn alt" href="https://github.com/PearlM-457/Deep_Learning_Projects/tree/main/cansat-landcover" target="_blank" rel="noopener">Code &amp; notebook</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card theme">
+      <div class="tile" style="--a:#d9d2ff;--b:#eeeaff" aria-hidden="true">🎬</div>
+      <div class="body">
+        <p class="kind">Recommenders · Embeddings</p>
+        <h3>Movie Night Picker</h3>
+        <ul class="tags"><li>Text embeddings</li><li>Recommender</li></ul>
+        <p>Plot summaries, genres and keywords become text embeddings that find what to watch tonight, for one person or two. It hides sequels and movies you have seen.</p>
+        <div class="acts">
+          <a class="btn" href="movie_night_site/">▶ Try it</a>
+          <a class="btn alt" href="https://github.com/PearlM-457/Deep_Learning_Projects/tree/main/movie_night_site" target="_blank" rel="noopener">Code &amp; notebook</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <section class="card" id="run">
+    <h2>Run it yourself</h2>
+    <p>Everything here is open. Clone the repo and open any project folder; each one has its own README.</p>
+<pre>git clone https://github.com/PearlM-457/Deep_Learning_Projects.git
+cd Deep_Learning_Projects</pre>
+    <p class="note">The Translator and Movie Night Picker run in the browser: serve the folder with <code>python -m http.server</code> and open it. Some demos wake up slowly on the first visit.</p>
+  </section>
+
+  <footer class="hero card">
+    <p>Built with curiosity, patience, and a lot of trial and error.</p>
+    <p>Marvarid (PearlyMe) &nbsp;·&nbsp; <a href="https://pearlm-457.github.io/">Home</a> &nbsp;·&nbsp; <a href="https://pearlm-457.github.io/arcade.html">Project Arcade</a> &nbsp;·&nbsp; <a href="https://github.com/PearlM-457" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
+</div>
+<script>
+(function () {
+  if (document.querySelector(".sky")) return;
+  var small = innerWidth < 700;
+  var sky = document.createElement("div");
+  sky.className = "sky";
+  sky.setAttribute("aria-hidden", "true");
+  sky.innerHTML = '<i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="shoot"></i>';
+
+  var i, el, r = Math.random;
+  for (i = 0; i < (small ? 45 : 95); i++) {          // tiny stars
+    el = document.createElement("i");
+    el.className = "star";
+    var s = r() * 2.2 + 1;
+    el.style.cssText = "left:" + r() * 100 + "%;top:" + r() * 100 + "%;width:" + s + "px;height:" + s + "px;" +
+      "--d:" + (3 + r() * 4) + "s;--delay:-" + r() * 6 + "s";
+    sky.appendChild(el);
+  }
+  var glows = ["rgba(255,150,210,.75)", "rgba(180,150,255,.75)", "rgba(130,200,255,.8)"];
+  for (i = 0; i < (small ? 7 : 14); i++) {            // 4-point sparkles
+    el = document.createElement("i");
+    el.className = "spark";
+    el.style.cssText = "left:" + r() * 96 + "%;top:" + r() * 96 + "%;--s:" + (10 + r() * 14) + "px;" +
+      "--d:" + (4 + r() * 4) + "s;--delay:-" + r() * 6 + "s;--glow:" + glows[i % 3];
+    sky.appendChild(el);
+  }
+  document.body.prepend(sky);
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var last = 0, colors = ["#ff9fd0", "#b9a0ff", "#8fd0ff"], n = 0;
+  addEventListener("pointermove", function (e) {      // dust trail, mouse only
+    if (e.pointerType !== "mouse") return;
+    var t = performance.now();
+    if (t - last < 70) return;
+    last = t;
+    var d = document.createElement("i");
+    d.className = "dust";
+    d.style.left = e.clientX + "px";
+    d.style.top = e.clientY + "px";
+    d.style.setProperty("--h", colors[n++ % 3]);
+    document.body.appendChild(d);
+    d.addEventListener("animationend", function () { d.remove(); });
+  }, { passive: true });
+})();
+
+</script>
+</body>
+</html>
